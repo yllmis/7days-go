@@ -80,4 +80,5 @@ func (r *router) handle(c *Context) {
 	} else {
 		c.String(404, "404 NOT FOUND: %s\n", c.Path)
 	}
+	c.Next()
 }

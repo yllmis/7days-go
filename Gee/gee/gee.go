@@ -88,6 +88,12 @@ func (group *RouteGroup) Static(relativePath string, root string) {
 	group.GET(urlPattern, handler)
 }
 
+func Default() *Engine {
+	engine := New()
+	engine.Use(Logger(), Recovery())
+	return engine
+}
+
 func (engine *Engine) SetFuncMap(funcMap template.FuncMap) {
 	engine.funcMap = funcMap
 }

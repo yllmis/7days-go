@@ -5,6 +5,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/vote_demo/app/logic"
+	"github.com/vote_demo/app/model"
+	"github.com/vote_demo/app/tools"
 )
 
 func NewRouter() {
@@ -16,19 +18,35 @@ func NewRouter() {
 	index := r.Group("")
 	index.Use(checkUser)
 	index.GET("/index", logic.Index)
+	index.GET("/vote", logic.GetVoteInfo)
+	index.POST("/vote", logic.DoVote)
 	// 登录页面
 	r.GET("/", logic.Index)
 	r.GET("/login", logic.GetLogin)
 	// 处理登录请求
 	r.POST("/login", logic.DoLogin)
+	r.GET("/logout", logic.Logout)
 	// 启动服务
 	r.Run(":9999")
 }
 
 func checkUser(ctx *gin.Context) {
-	name, err := ctx.Cookie("name")
-	if err != nil || name == "" {
-		ctx.Redirect(http.StatusFound, "/login")
+	var name string
+	var id int64
+	value := model.GetSession(ctx)
+
+	if v, ok := value["name"]; ok {
+		name = v.(string)
+	}
+	if v, ok := value["id"]; ok {
+		id = v.(int64)
+	}
+	if name == "" || id == 0 {
+		ctx.JSON(http.StatusOK, tools.Ecode{
+			Code:    401,
+			Message: "未登录或登录已过期，请重新登录",
+		})
+		ctx.Abort()
 	}
 	ctx.Next()
 }

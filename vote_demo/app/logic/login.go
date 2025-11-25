@@ -4,13 +4,13 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/vote_demo/app/modle"
+	"github.com/vote_demo/app/model"
 	"github.com/vote_demo/app/tools"
 )
 
 // User 用户结构体
 type User struct {
-	Name     string `json:"name" form:"username"`     // 注意这里的 tag 要和表单中input的 name 属性对应
+	Name     string `json:"name" form:"name"`         // 注意这里的 tag 要和表单中input的 name 属性对应
 	Password string `json:"password" form:"password"` // 注意，若password首字母小写，则无法绑定到，因为反射只能访问导出字段
 }
 
@@ -27,7 +27,7 @@ func DoLogin(ctx *gin.Context) {
 	}
 
 	// 查询数据库验证用户
-	ret := modle.GetUser(user.Name)
+	ret := model.GetUser(user.Name)
 	if ret.Id < 1 || ret.Password != user.Password {
 		ctx.JSON(http.StatusBadGateway, tools.Ecode{
 			Message: "用户名或密码错误",
@@ -36,13 +36,20 @@ func DoLogin(ctx *gin.Context) {
 	}
 
 	// 登录成功
-	ctx.SetCookie("name", user.Name, 3600, "/", "", true, false)
+	// ctx.SetCookie("name", user.Name, 3600, "/", "", true, false)
+	// ctx.SetCookie("Id", fmt.Sprint(ret.Id), 3600, "/", "", true, false)
+
+	_ = model.SetSession(ctx, ret.Name, ret.Id)
 
 	ctx.JSON(http.StatusOK, tools.Ecode{
 		Message: "登录成功",
 	})
 }
 
-func Index(ctx *gin.Context) {
-	ctx.HTML(http.StatusOK, "index.tmpl", nil)
+func Logout(ctx *gin.Context) {
+	_ = model.FlushSession(ctx)
+	// 删除cookie
+	// ctx.SetCookie("name", "", 3600, "/", "", true, false)
+	// ctx.SetCookie("Id", "", 3600, "/", "", true, false)
+	ctx.Redirect(http.StatusFound, "/login")
 }

@@ -1,8 +1,11 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
     <meta charset="UTF-8">
     <title>登录</title>
+    <script src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -13,26 +16,31 @@
             background-color: #f0f2f5;
             margin: 0;
         }
+
         .login-container {
             background-color: white;
             padding: 30px;
             border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             width: 300px;
         }
+
         .login-container h2 {
             text-align: center;
             margin-bottom: 20px;
             color: #333;
         }
+
         .form-group {
             margin-bottom: 15px;
         }
+
         .form-group label {
             display: block;
             margin-bottom: 5px;
             color: #666;
         }
+
         .form-group input {
             width: 100%;
             padding: 8px;
@@ -40,6 +48,7 @@
             border-radius: 4px;
             box-sizing: border-box;
         }
+
         .submit-btn {
             width: 100%;
             padding: 10px;
@@ -50,25 +59,67 @@
             cursor: pointer;
             font-size: 16px;
         }
+
         .submit-btn:hover {
             background-color: #0056b3;
         }
     </style>
 </head>
+
 <body>
-    <div class="login-container">
+    <main class="login-container">
         <h2>用户登录</h2>
         <form action="/login" method="post">
             <div class="form-group">
-                <label for="username">用户名</label>
-                <input type="text" id="username" name="username" required>
+                <label for="name">用户名</label>
+                <input type="text" id="name" name="name" required>
             </div>
             <div class="form-group">
                 <label for="password">密码</label>
                 <input type="password" id="password" name="password" required>
             </div>
-            <button type="submit" class="submit-btn">登录</button>
+            <button type="submit" class="submit-btn" id="login_sub">登录</button>
         </form>
-    </div>
+    </main>
+    <script>
+        $(document).ready(function () {
+            $("#login_sub").on("click", function () {
+                event.preventDefault();
+                $.ajax({
+                    //请求资源路径
+                    url: "/login",
+                    //请求参数
+                    data: {
+                        name: $("#name").val(),
+                        password: $("#password").val()
+                    },
+                    //请求方式
+                    type: "post",
+                    //数据形式
+                    dataType: "json",
+                    //请求成功后调用的回调函数
+                    success: function (data) {
+                        console.log(data)
+
+                        if (data.code !== 0) {
+                            alert(data.message)
+                        } else {
+                            alert("已登录")
+                            setTimeout("pageRedirect()", 3000);
+                        }
+                    },
+                    //请求失败后调用的回调函数
+                    error: function () {
+                        alert("登录失败，请重试！");
+                    }
+                });
+            });
+        });
+        function pageRedirect() {
+            window.location.replace("/index"); //实现跳转
+        }
+    </script>
+
 </body>
+
 </html>

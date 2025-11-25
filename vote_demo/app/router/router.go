@@ -14,13 +14,16 @@ func NewRouter() {
 	r.LoadHTMLGlob("app/view/*")
 	// 路径操作
 	index := r.Group("")
-	index.Use(checkUser)
+	// index.Use(checkUser)
 	index.GET("/index", logic.Index)
+	index.GET("/vote", logic.GetVoteInfo)
+	index.POST("/vote", logic.DoVote)
 	// 登录页面
 	r.GET("/", logic.Index)
 	r.GET("/login", logic.GetLogin)
 	// 处理登录请求
 	r.POST("/login", logic.DoLogin)
+	r.GET("/logout", logic.Logout)
 	// 启动服务
 	r.Run(":9999")
 }

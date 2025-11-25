@@ -1,14 +1,14 @@
 package app
 
 import (
-	"github.com/vote_demo/app/modle"
+	"github.com/vote_demo/app/model"
 	"github.com/vote_demo/app/router"
 )
 
 func Strat() {
-	modle.NewMysql()
+	model.NewMysql()
 	defer func() {
-		modle.Close()
+		model.Close()
 	}()
 
 	router.NewRouter()

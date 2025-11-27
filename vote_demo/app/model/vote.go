@@ -21,13 +21,13 @@ func GetVote(id int64) VoteWithOpts {
 		fmt.Printf("查询失败, err:%s\n", err.Error())
 	}
 
-	opts := make([]VoteOpt, 0)
-	if err := Conn.Table("vote_opt").Where("vote_id = ?", id).Find(&opts).Error; err != nil { //Mysql本身比较脆弱，所以不加外键，利用代码关联
+	opt := make([]VoteOpt, 0)
+	if err := Conn.Table("vote_opt").Where("vote_id = ?", id).Find(&opt).Error; err != nil { //Mysql本身比较脆弱，所以不加外键，利用代码关联
 		fmt.Printf("查询选项失败, err:%s\n", err.Error())
 	}
 	return VoteWithOpts{
 		Vote: ret,
-		Opts: opts,
+		Opt:  opt,
 	}
 }
 

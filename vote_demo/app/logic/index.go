@@ -14,12 +14,21 @@ func Index(ctx *gin.Context) {
 	ctx.HTML(http.StatusOK, "index.tmpl", gin.H{"vote": ret})
 }
 
+func GetVotes(ctx *gin.Context) {
+	ret := model.GetVotes()
+	ctx.JSON(http.StatusOK, tools.ECode{
+		Data: ret,
+	})
+}
+
 func GetVoteInfo(ctx *gin.Context) {
 	var id int64
 	idStr := ctx.Query("id")
 	id, _ = strconv.ParseInt(idStr, 10, 64)
 	ret := model.GetVote(id)
-	ctx.HTML(http.StatusOK, "vote.tmpl", gin.H{"vote": ret})
+	ctx.JSON(http.StatusOK, tools.ECode{
+		Data: ret,
+	})
 }
 
 func DoVote(ctx *gin.Context) {

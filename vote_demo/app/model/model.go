@@ -61,5 +61,5 @@ type User struct {
 
 type VoteWithOpts struct {
 	Vote Vote
-	Opts []VoteOpt
+	Opt  []VoteOpt
 }

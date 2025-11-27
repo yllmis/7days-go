@@ -15,17 +15,24 @@ func NewRouter() {
 	// 加载模板文件
 	r.LoadHTMLGlob("app/view/*")
 	// 路径操作
-	index := r.Group("")
-	// index.Use(checkUser)
-	index.GET("/index", logic.Index)
-	index.GET("/vote", logic.GetVoteInfo)
-	index.POST("/vote", logic.DoVote)
-	// 登录页面
+
+	{
+		index := r.Group("")
+		// index.Use(checkUser)
+		index.GET("/index", logic.Index)
+		index.GET("/votes", logic.GetVotes)
+		index.GET("/vote", logic.GetVoteInfo)
+		index.POST("/vote", logic.DoVote)
+	}
 	r.GET("/", logic.Index)
-	r.GET("/login", logic.GetLogin)
-	// 处理登录请求
-	r.POST("/login", logic.DoLogin)
-	r.GET("/logout", logic.Logout)
+	{
+		// 登录页面
+
+		r.GET("/login", logic.GetLogin)
+		// 处理登录请求
+		r.POST("/login", logic.DoLogin)
+		r.GET("/logout", logic.Logout)
+	}
 	// 启动服务
 	r.Run(":9999")
 }

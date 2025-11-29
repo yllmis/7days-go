@@ -25,7 +25,7 @@ func NewRouter() {
 		index.POST("/vote", logic.DoVote)
 
 		index.POST("/vote/add", logic.AddVote)
-		index.GET("/vote/update", logic.UpdateVote)
+		index.POST("/vote/update", logic.UpdateVote)
 		index.POST("/vote/del", logic.DelVote)
 
 		index.GET("/result", logic.ResultInfo)

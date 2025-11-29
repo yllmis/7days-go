@@ -83,7 +83,7 @@ func DelVote(ctx *gin.Context) {
 	var id int64
 	idStr := ctx.Query("id")
 	id, _ = strconv.ParseInt(idStr, 10, 64)
-	if err := model.DelVote(id); err != true {
+	if err := model.DelVote(id); !err {
 		ctx.JSON(http.StatusOK, tools.ECode{
 			Code: 10006,
 		})

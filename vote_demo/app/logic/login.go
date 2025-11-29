@@ -42,6 +42,7 @@ func DoLogin(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, tools.ECode{
 		Message: "登录成功",
 	})
+	return
 }
 
 func Logout(ctx *gin.Context) {

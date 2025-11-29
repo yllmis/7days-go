@@ -33,7 +33,7 @@ func GetVoteInfo(ctx *gin.Context) {
 
 func DoVote(ctx *gin.Context) {
 	userIdStr, _ := ctx.Cookie("Id")
-	voteIdStr, _ := ctx.GetPostForm("vote_id")
+	voteIdStr, _ := ctx.GetPostForm("vote_id") // 获取表单中的 name="vote_id" 字段
 	voteOpteIdStr, _ := ctx.GetPostFormArray("opt[]")
 
 	userId, _ := strconv.ParseInt(userIdStr, 10, 64)

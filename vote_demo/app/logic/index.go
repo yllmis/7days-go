@@ -38,6 +38,16 @@ func DoVote(ctx *gin.Context) {
 
 	userId, _ := strconv.ParseInt(userIdStr, 10, 64)
 	voteId, _ := strconv.ParseInt(voteIdStr, 10, 64)
+
+	old := model.GetVoteHistory(userId, voteId)
+	if len(old) > 0 {
+		ctx.JSON(http.StatusOK, tools.ECode{
+			Code:    100010,
+			Message: "您已投过票，不能重复投票",
+		})
+		return
+	}
+
 	opt := make([]int64, 0)
 	for _, v := range voteOpteIdStr {
 		optId, _ := strconv.ParseInt(v, 10, 64)

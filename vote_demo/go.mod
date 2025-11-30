@@ -7,6 +7,7 @@ require (
 	github.com/go-sql-driver/mysql v1.9.3
 	github.com/gorilla/sessions v1.4.0
 	github.com/mojocn/base64Captcha v1.3.8
+	github.com/sirupsen/logrus v1.9.3
 	golang.org/x/crypto v0.40.0
 	gorm.io/driver/mysql v1.6.0
 	gorm.io/gorm v1.31.1

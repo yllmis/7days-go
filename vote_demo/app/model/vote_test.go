@@ -36,7 +36,7 @@ func TestAddVote(t *testing.T) {
 	Vote := Vote{
 		Title:      "测试投票",
 		Type:       0,
-		Status:     0,
+		Status:     1,
 		Time:       0,
 		UserId:     0,
 		CreateTime: time.Now(),

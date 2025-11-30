@@ -44,7 +44,7 @@ func DoVote(userId int64, voteId int64, optIds []int64) bool {
 
 	// 更新选项投票数
 	for _, value := range optIds {
-		if err := Conn.Table("vote_opt").Where("id = ?", value).UpdateColumn("count", gorm.Expr("count + ?", 1)).Error; err != nil {
+		if err := tx.Table("vote_opt").Where("id = ?", value).UpdateColumn("count", gorm.Expr("count + ?", 1)).Error; err != nil {
 			fmt.Printf("更新选项投票数失败, err:%s\n", err.Error())
 			tx.Rollback()
 			return false
@@ -55,7 +55,7 @@ func DoVote(userId int64, voteId int64, optIds []int64) bool {
 			VoteOptId:  value,
 			CreateTime: time.Now(),
 		}
-		_ = Conn.Create(&user).Error // 记录用户投票选项
+		_ = tx.Create(&user).Error // 记录用户投票选项
 	}
 	tx.Commit()
 	return true
@@ -143,4 +143,30 @@ func DelVote(id int64) bool {
 		return false
 	}
 	return true
+}
+
+// 获取用户投票记录
+func GetVoteHistory(userId, voteId int64) []VoteOptUser {
+	ret := make([]VoteOptUser, 0)
+	if err := Conn.Table("vote_opt_user").Where("user_id = ? AND vote_id = ?", userId, voteId).Find(&ret).Error; err != nil {
+		fmt.Printf("查询用户投票记录失败, err:%s\n", err.Error())
+	}
+	return ret
+}
+
+func EndVote() {
+	votes := make([]Vote, 0)
+	if err := Conn.Table("vote").Where("status = ?", 1).Find(&votes).Error; err != nil {
+		return
+	}
+
+	now := time.Now().Unix()
+	for _, vote := range votes {
+		if vote.Time+vote.CreateTime.Unix() <= now {
+			// 投票结束，更新状态
+			if err := Conn.Table("vote").Where("id = ?", vote.Id).Update("status", 2).Error; err != nil {
+				fmt.Printf("更新投票状态失败, err:%s\n", err.Error())
+			}
+		}
+	}
 }

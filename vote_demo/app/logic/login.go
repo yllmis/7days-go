@@ -137,6 +137,7 @@ func CreateUser(ctx *gin.Context) {
 		Password:   encrypt2(user.Password),
 		CreateTime: time.Now(),
 		UpdateTime: time.Now(),
+		Uuid:       tools.GetUUID(),
 	}
 
 	if err := model.CreateUser(&newUser); err != nil {

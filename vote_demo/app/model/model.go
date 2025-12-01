@@ -57,6 +57,7 @@ type User struct {
 	Password   string    `gorm:"column:password;default:NULL"`
 	CreateTime time.Time `gorm:"column:create_time;default:NULL"`
 	UpdateTime time.Time `gorm:"column:update_time;default:NULL"`
+	Uuid       string    `gorm:"column:uuid;default:NULL"`
 }
 
 func (u *User) TableName() string {

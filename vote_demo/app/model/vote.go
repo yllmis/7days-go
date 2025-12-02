@@ -31,6 +31,14 @@ func GetVote(id int64) VoteWithOpts {
 	}
 }
 
+func GetVoteByTitle(title string) Vote {
+	var ret Vote
+	if err := Conn.Table("vote").Where("title = ?", title).First(&ret).Error; err != nil {
+		fmt.Printf("查询失败, err:%s\n", err.Error())
+	}
+	return ret
+}
+
 // 使用gorm中最常用的事务方法
 func DoVote(userId int64, voteId int64, optIds []int64) bool {
 	tx := Conn.Begin() // 开启事务

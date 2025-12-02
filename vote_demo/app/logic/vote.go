@@ -22,6 +22,20 @@ func AddVote(ctx *gin.Context) {
 		CreateTime: time.Now(),
 	}
 
+	oldVote := model.GetVoteByTitle(idStr)
+	if oldVote.Id > 0 {
+		// ctx.JSON(http.StatusOK, tools.ECode{
+		// 	Code:    10006,
+		// 	Message: "投票已存在",
+		// })
+		// return
+	}
+
+	if vote.Title == "" {
+		ctx.JSON(http.StatusBadRequest, tools.ParamErr)
+		return
+	}
+
 	opt := make([]model.VoteOpt, 0)
 	// 构建选项
 	for _, name := range optStr {
@@ -40,7 +54,7 @@ func AddVote(ctx *gin.Context) {
 		})
 		return
 	}
-	ctx.JSON(http.StatusOK, tools.OK)
+	ctx.JSON(http.StatusCreated, tools.OK)
 
 }
 
@@ -83,10 +97,20 @@ func DelVote(ctx *gin.Context) {
 	var id int64
 	idStr := ctx.Query("id")
 	id, _ = strconv.ParseInt(idStr, 10, 64)
+	vote := model.GetVote(id)
+
+	if vote.Vote.Id <= 0 {
+		ctx.JSON(http.StatusNoContent, tools.OK)
+		return
+	}
+
 	if err := model.DelVote(id); !err {
 		ctx.JSON(http.StatusOK, tools.ECode{
-			Code: 10006,
+			Code:    10006,
+			Message: "删除失败",
 		})
 		return
 	}
+
+	ctx.JSON(http.StatusNoContent, tools.OK)
 }

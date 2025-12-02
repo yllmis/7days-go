@@ -17,21 +17,36 @@ func NewRouter() {
 	r.LoadHTMLGlob("app/view/*")
 	// 路径操作
 
+	index := r.Group("")
+	// index.Use(checkUser)
+
 	{
-		index := r.Group("")
-		index.Use(checkUser)
-		index.GET("/index", logic.Index)
-		index.GET("/votes", logic.GetVotes)
+
 		index.GET("/vote", logic.GetVoteInfo)
-		index.POST("/vote", logic.DoVote)
 
 		index.POST("/vote/add", logic.AddVote)
 		index.POST("/vote/update", logic.UpdateVote)
 		index.POST("/vote/del", logic.DelVote)
 
 		index.GET("/result", logic.ResultInfo)
-		index.GET("/result/info", logic.GetResultInfo)
+		index.GET("/result/info", logic.ResultVote)
 	}
+	// 利用restful风格设计路由
+	{
+		// 读操作
+		index.GET("/index", logic.Index)
+		index.GET("/votes", logic.GetVotes)
+
+		index.POST("/vote", logic.AddVote)
+		index.PUT("/vote", logic.UpdateVote)
+		index.DELETE("/vote", logic.DelVote)
+
+		index.GET("/vote/result", logic.ResultVote)
+
+		index.POST("do_vote", logic.DoVote)
+
+	}
+
 	r.GET("/", logic.Index)
 	{
 		// 登录页面
@@ -96,10 +111,7 @@ func checkUser(ctx *gin.Context) {
 		id = v.(int64)
 	}
 	if name == "" || id == 0 {
-		ctx.JSON(http.StatusOK, tools.ECode{
-			Code:    401,
-			Message: "未登录或登录已过期，请重新登录",
-		})
+		ctx.JSON(http.StatusUnauthorized, tools.NotLogin)
 		ctx.Abort()
 	}
 	ctx.Next()

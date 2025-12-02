@@ -26,9 +26,16 @@ func GetVoteInfo(ctx *gin.Context) {
 	idStr := ctx.Query("id")
 	id, _ = strconv.ParseInt(idStr, 10, 64)
 	ret := model.GetVote(id)
+
+	if ret.Vote.Id <= 0 {
+		ctx.JSON(http.StatusNotFound, tools.ECode{})
+		return
+	}
+
 	ctx.JSON(http.StatusOK, tools.ECode{
 		Data: ret,
 	})
+
 }
 
 func DoVote(ctx *gin.Context) {
@@ -64,7 +71,7 @@ func ResultInfo(ctx *gin.Context) {
 	ctx.HTML(http.StatusOK, "result.tmpl", nil)
 }
 
-func GetResultInfo(ctx *gin.Context) {
+func ResultVote(ctx *gin.Context) {
 	var id int64
 	idStr := ctx.Query("id")
 	id, _ = strconv.ParseInt(idStr, 10, 64)

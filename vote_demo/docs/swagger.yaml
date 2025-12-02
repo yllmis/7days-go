@@ -1,0 +1,91 @@
+definitions:
+  logic.User:
+    properties:
+      captcha_id:
+        description: 新增：验证码ID
+        type: string
+      captcha_value:
+        description: 新增：用户输入的验证码
+        type: string
+      name:
+        description: 注意这里的 tag 要和表单中input的 name 属性对应
+        type: string
+      password:
+        description: 注意，若password首字母小写，则无法绑定到，因为反射只能访问导出字段
+        type: string
+    type: object
+  tools.ECode:
+    properties:
+      code:
+        type: integer
+      data: {}
+      message:
+        type: string
+    type: object
+info:
+  contact:
+    email: yllmis
+    name: Vote API
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+paths:
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: 执行用户登录
+      parameters:
+      - description: login User
+        in: body
+        name: name
+        required: true
+        schema:
+          $ref: '#/definitions/logic.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/tools.ECode'
+      summary: 执行用户登录
+      tags:
+      - login
+  /logout:
+    post:
+      consumes:
+      - application/json
+      description: 执行用户退出
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/tools.ECode'
+      summary: 执行用户退出
+      tags:
+      - login
+  /vote:
+    get:
+      consumes:
+      - application/json
+      description: 获取投票信息
+      parameters:
+      - description: vote ID
+        in: query
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/tools.ECode'
+      summary: 获取投票信息
+      tags:
+      - vote
+swagger: "2.0"

@@ -21,6 +21,15 @@ func GetVotes(ctx *gin.Context) {
 	})
 }
 
+// GetVoteInfo godoc
+// @Summary      获取投票信息
+// @Description  获取投票信息
+// @Tags         vote
+// @Accept       json
+// @Produce      json
+// @Param        id   query      int  true  "vote ID"
+// @Success      200  {object}  tools.ECode
+// @Router       /vote [get]
 func GetVoteInfo(ctx *gin.Context) {
 	var id int64
 	idStr := ctx.Query("id")

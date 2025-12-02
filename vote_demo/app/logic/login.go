@@ -26,6 +26,15 @@ func GetLogin(ctx *gin.Context) {
 	ctx.HTML(http.StatusOK, "login.tmpl", nil)
 }
 
+// DoLogin godoc
+// @Summary      执行用户登录
+// @Description  执行用户登录
+// @Tags         login
+// @Accept       json
+// @Produce      json
+// @Param        name   body      User true	"login User"
+// @Success      200  {object}  tools.ECode
+// @Router       /login [post]
 func DoLogin(ctx *gin.Context) {
 	var user User
 	if err := ctx.ShouldBind(&user); err != nil { // ShouldBind 会根据请求头自动选择合适的绑定器
@@ -65,6 +74,14 @@ func DoLogin(ctx *gin.Context) {
 	return
 }
 
+// Logout godoc
+// @Summary      执行用户退出
+// @Description  执行用户退出
+// @Tags         login
+// @Accept       json
+// @Produce      json
+// @Success      200  {object}  tools.ECode
+// @Router       /logout [post]
 func Logout(ctx *gin.Context) {
 	_ = model.FlushSession(ctx)
 	// 删除cookie

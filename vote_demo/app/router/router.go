@@ -8,6 +8,11 @@ import (
 	"github.com/vote_demo/app/logic"
 	"github.com/vote_demo/app/model"
 	"github.com/vote_demo/app/tools"
+
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
+
+	_ "github.com/vote_demo/docs"
 )
 
 func NewRouter() {
@@ -15,6 +20,8 @@ func NewRouter() {
 	r := gin.Default()
 	// 加载模板文件
 	r.LoadHTMLGlob("app/view/*")
+
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	// 路径操作
 
 	index := r.Group("")

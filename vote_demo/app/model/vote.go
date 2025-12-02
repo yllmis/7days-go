@@ -15,7 +15,7 @@ func GetVotes() []Vote {
 	return ret
 }
 
-func GetVote(id int64) VoteWithOpts {
+func GetVote(id int64) VoteWithOpt {
 	var ret Vote
 	if err := Conn.Table("vote").Where("id = ?", id).First(&ret).Error; err != nil {
 		fmt.Printf("查询失败, err:%s\n", err.Error())
@@ -25,7 +25,7 @@ func GetVote(id int64) VoteWithOpts {
 	if err := Conn.Table("vote_opt").Where("vote_id = ?", id).Find(&opt).Error; err != nil { //Mysql本身比较脆弱，所以不加外键，利用代码关联
 		fmt.Printf("查询选项失败, err:%s\n", err.Error())
 	}
-	return VoteWithOpts{
+	return VoteWithOpt{
 		Vote: ret,
 		Opt:  opt,
 	}

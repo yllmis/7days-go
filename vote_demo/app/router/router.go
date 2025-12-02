@@ -21,8 +21,13 @@ func NewRouter() {
 	// 加载模板文件
 	r.LoadHTMLGlob("app/view/*")
 
-	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	// 路径操作
+	r.GET("/redis", func(ctx *gin.Context) {
+		s := model.GetVoteCachae(ctx, 1)
+		fmt.Printf("redis获取到的值为：%+v\n", s)
+	})
+
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	index := r.Group("")
 	// index.Use(checkUser)

@@ -8,6 +8,8 @@ import (
 
 func Strat() {
 	model.NewMysql()
+
+	model.NewRdb()
 	defer func() {
 		model.Close()
 	}()

@@ -3,6 +3,7 @@ package model
 import (
 	"fmt"
 
+	"github.com/redis/go-redis/v9"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
@@ -25,7 +26,22 @@ func NewMysql() {
 	Conn = conn
 }
 
+// Redis
+var Rdb *redis.Client
+
+func NewRdb() {
+	rdb := redis.NewClient(&redis.Options{
+		Addr:     "127.0.0.1:6379",
+		Password: "", // no password set
+		DB:       0,  // use default DB
+	})
+
+	Rdb = rdb
+	return
+}
+
 func Close() {
 	db, _ := Conn.DB()
 	db.Close()
+	Rdb.Close()
 }

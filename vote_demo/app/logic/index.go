@@ -1,6 +1,7 @@
 package logic
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -71,6 +72,7 @@ func DoVote(ctx *gin.Context) {
 	}
 
 	model.DoVote(userId, voteId, opt)
+	model.Rdb.Set(ctx, fmt.Sprintf("vote_opt_%d", voteId), "", 0)
 	ctx.JSON(http.StatusOK, tools.ECode{
 		Message: "投票完成",
 	})

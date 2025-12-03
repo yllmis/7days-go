@@ -2,6 +2,7 @@ package model
 
 import (
 	"fmt"
+	"sync"
 	"time"
 
 	"gorm.io/gorm"
@@ -29,6 +30,146 @@ func GetVote(id int64) VoteWithOpt {
 		Vote: ret,
 		Opt:  opt,
 	}
+}
+
+// 原生sql实现
+func GetVoteV1(id int64) VoteWithOpt {
+	var ret Vote
+	if err := Conn.Raw("select * from vote where id = ?", id).Scan(&ret).Error; err != nil {
+		fmt.Printf("查询失败, err:%s\n", err.Error())
+	}
+
+	opt := make([]VoteOpt, 0)
+	if err := Conn.Raw("select * from vote_opt where vote_id = ?", id).Scan(&opt).Error; err != nil {
+		fmt.Printf("查询选项失败, err:%s\n", err.Error())
+	}
+	return VoteWithOpt{
+		Vote: ret,
+		Opt:  opt,
+	}
+}
+
+// 预加载
+func GetVoteV2(id int64) (*VoteWithOpt, error) {
+	var ret VoteWithOpt
+
+	//Opt  []VoteOpt
+	err := Conn.Preload("Opt").Table("vote").Where("id = ?", id).First(&ret).Error // Opt[] 是vote结构体中的切片字段，Preload会自动关联查询
+	if err != nil {
+		fmt.Printf("查询失败, err:%s\n", err.Error())
+		return nil, err
+	}
+
+	return &ret, nil
+}
+
+// Join查询
+func GetVoteV3(id int64) (*VoteWithOpt, error) {
+	var ret VoteWithOpt
+	// select * from vote join vote_opt on vote.id = vote_opt.vote_id where vote.id = ?
+	sql := "select vote.*,vote_opt.id as vid, vote_opt.name,vote_opt.count from vote join vote_opt on vote.id = vote_opt.vote_id where vote.id = ?"
+	// err := Conn.Raw("select * from vote join vote_opt on vote.id = vote_opt.vote_id where vote.id = ?", id).Scan(&ret).Error // 这种方式无法正确映射到结构体中的切片字段
+
+	// 解决办法
+	//第一个 把ret 换成map
+	//ret1 := make([]map[string]any, 0 )
+	//err := Conn.Raw(sql, id).Scan(&ret1).Error
+	//for a, a2 := range ret1 {
+	//	再把 a a2 转义到 VoteWithOpt中
+
+	// 第二个
+	row, err := Conn.Raw(sql, id).Rows()
+
+	if err != nil {
+		fmt.Printf("查询失败, err:%s\n", err.Error())
+		return nil, err
+	}
+
+	for row.Next() {
+		tmp := make(map[string]any)
+		_ = Conn.ScanRows(row, &tmp)
+
+		if v, ok := tmp["id"]; ok {
+			ret.Vote.Id = v.(int64)
+		}
+
+		//将map先转为 json 再转为 结构体，也可以写一个反射 直接实现。
+		fmt.Printf("tmp:%+v\n", tmp)
+
+	}
+
+	return &ret, nil
+}
+
+// 并发模式 第一种
+func GetVoteV4(id int64) (*VoteWithOpt, error) {
+	var ret Vote
+
+	ch := make(chan struct{}, 2) // 如果不这么做，这个函数主协程直接return了，协程无法进行
+
+	go func() {
+
+		if err := Conn.Raw("select * from vote where id = ?", id).Scan(&ret).Error; err != nil {
+			fmt.Printf("查询失败, err:%s\n", err.Error())
+		}
+		ch <- struct{}{}
+	}()
+
+	opt := make([]VoteOpt, 0)
+	go func() {
+		if err1 := Conn.Raw("select * from vote_opt where vote_id = ?", id).Scan(&opt).Error; err1 != nil {
+			fmt.Printf("查询选项失败, err:%s\n", err1.Error())
+		}
+		ch <- struct{}{}
+	}()
+
+	var count int
+	for _ = range ch {
+		count++
+		if count >= 2 {
+			break
+		}
+	}
+
+	return &VoteWithOpt{
+		Vote: ret,
+		Opt:  opt,
+	}, nil
+}
+
+// 并发模式 第二种 使用sync.WaitGroup
+func GetVoteV5(id int64) (*VoteWithOpt, error) {
+	var ret Vote
+
+	wg := sync.WaitGroup{}
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+
+		if err := Conn.Raw("select * from vote where id = ?", id).Scan(&ret).Error; err != nil {
+			fmt.Printf("查询失败, err:%s\n", err.Error())
+		}
+
+	}()
+
+	opt := make([]VoteOpt, 0)
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+
+		if err1 := Conn.Raw("select * from vote_opt where vote_id = ?", id).Scan(&opt).Error; err1 != nil {
+			fmt.Printf("查询选项失败, err:%s\n", err1.Error())
+		}
+
+	}()
+
+	wg.Wait()
+
+	return &VoteWithOpt{
+		Vote: ret,
+		Opt:  opt,
+	}, nil
 }
 
 func GetVoteByTitle(title string) Vote {

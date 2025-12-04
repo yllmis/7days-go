@@ -8,6 +8,6 @@ import (
 func TestGetVoteHistory(t *testing.T) {
 	NewMysql()
 	NewRdb()
-	GetVoteHistoryV1(context.TODO(), 3, 3)
+	GetVoteHistoryV1(context.TODO(), 7, 7)
 
 }
